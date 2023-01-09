@@ -1,0 +1,62 @@
+#!/usr/bin/bash
+
+# Project: Auto Detection of Network IP, Port Sweep and Scan of Open Ports.
+
+# Author: GowoenTheH4Kr
+
+# Automatically discover IP of the network
+# Discover Connected devices with a ping sweep
+# Nmap scan of devices to find open ports
+
+# GowoenPingr Header
+
+echo '
+ ██████╗  ██████╗ ██╗    ██╗ ██████╗ ███████╗███╗   ██╗██████╗ ██╗███╗   ██╗ ██████╗ ██████╗ 
+██╔════╝ ██╔═══██╗██║    ██║██╔═══██╗██╔════╝████╗  ██║██╔══██╗██║████╗  ██║██╔════╝ ██╔══██╗
+██║  ███╗██║   ██║██║ █╗ ██║██║   ██║█████╗  ██╔██╗ ██║██████╔╝██║██╔██╗ ██║██║  ███╗██████╔╝
+██║   ██║██║   ██║██║███╗██║██║   ██║██╔══╝  ██║╚██╗██║██╔═══╝ ██║██║╚██╗██║██║   ██║██╔══██╗
+╚██████╔╝╚██████╔╝╚███╔███╔╝╚██████╔╝███████╗██║ ╚████║██║     ██║██║ ╚████║╚██████╔╝██║  ██║
+ ╚═════╝  ╚═════╝  ╚══╝╚══╝  ╚═════╝ ╚══════╝╚═╝  ╚═══╝╚═╝     ╚═╝╚═╝  ╚═══╝ ╚═════╝ ╚═╝  ╚═╝
+'
+
+# Get the first octets of the network ip and sending it to the file octets.txt
+ifconfig | grep "broadcast" | cut -d " " -f 10 | cut -d "." -f 1,2,3 | uniq > octets.txt
+
+# Set variable to have the value of octets.txt
+OCTETS=$(cat octets.txt)
+
+# Create a new .txt file ( which will call the file by the network ip scanned )
+echo "" > $OCTETS.txt
+
+# Looking for a range of target ip of 1 - 254
+for ip in {1..254}
+do
+        ping -c 1 $OCTECTS.$ip | grep "64 bytes" | cut -d " " -f 4 | tr -d ":" >> $OCTETS.txt &
+done
+
+# Check to see if the script is working
+cat $OCTETS.txt | sort > sorted_$OCTETS.txt
+
+# Perform an Nmap scan
+echo "Now initializing Network Mapping..."
+
+# nmap script
+sudo nmap -sS -iL sorted_$OCTETS.txt
+
+# Footer 
+echo '
+
+   __  __     ______             __
+  /  |/  |   /      \           /  |
+ _$$ |$$ |_ /$$$$$$  | __    __ $$ |____    ______   __    __
+/ $$  $$   |$$$  \$$ |/  \  /  |$$      \  /      \ /  |  /  |
+$$$$$$$$$$/ $$$$  $$ |$$  \/$$/ $$$$$$$  |/$$$$$$  |$$ |  $$ |
+/ $$  $$   |$$ $$ $$ | $$  $$<  $$ |  $$ |$$ |  $$ |$$ |  $$ |
+$$$$$$$$$$/ $$ \$$$$ | /$$$$  \ $$ |  $$ |$$ |__$$ |$$ \__$$ |
+  $$ |$$ |  $$   $$$/ /$$/ $$  |$$ |  $$ |$$    $$/ $$    $$/
+  $$/ $$/    $$$$$$/  $$/   $$/ $$/   $$/ $$$$$$$/   $$$$$$/
+                                          $$ |
+                                          $$ |
+                                          $$/
+'
+exit
